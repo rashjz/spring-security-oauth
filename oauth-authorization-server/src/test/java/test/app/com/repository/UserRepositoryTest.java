@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import test.app.com.entities.Role;
 import test.app.com.entities.User;
@@ -26,7 +25,6 @@ import static org.junit.Assert.assertFalse;
  **/
 @RunWith(SpringRunner.class)
 @DataJpaTest(excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = CommandLineRunner.class))
-@ActiveProfiles("test")
 public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
@@ -48,7 +46,7 @@ public class UserRepositoryTest {
         List<User> userList = userRepository.findAll();
 
         assertEquals(1, userList.size());
-        assertEquals(1, userList.size());
+        assertEquals(expectedUser, userList.get(0));
     }
 
     @Test

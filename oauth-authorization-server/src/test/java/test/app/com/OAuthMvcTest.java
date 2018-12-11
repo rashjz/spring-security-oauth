@@ -47,7 +47,7 @@ public class OAuthMvcTest {
 
     @Test
     public void test() throws Exception {
-        String token = obtainAccessToken("user", "user");
+        String token = obtainAccessToken("auth-admin", "admin1");
         Assert.assertNotNull(token);
     }
 
