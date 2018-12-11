@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import test.app.com.entities.User;
 import test.app.com.repositories.UserRepository;
 
-@Service
+@Service(value ="userService" )
 public class UserService {
 
     private final UserRepository repo;

@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class HomeControllerTest {
 
     private static final Long USER_ID = 1L;
+    private static final String EXPECTED_ERROR_MESSAGE = "user not found with given user Id";
 
     @MockBean
     private UserRepository userRepository;
@@ -60,7 +61,7 @@ public class HomeControllerTest {
         mockMvc.perform(get("/user/"+USER_ID)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("user not found with given user Id"));
+                .andExpect(content().string(EXPECTED_ERROR_MESSAGE));
     }
 
     private User expectedUser() {

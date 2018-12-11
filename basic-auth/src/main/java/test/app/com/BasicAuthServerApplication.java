@@ -20,17 +20,7 @@ public class BasicAuthServerApplication {
 //    @Bean
 //    public CommandLineRunner setupDefaultUser(UserRepository repository) {
 //        return args -> {
-//            repository.save(User.builder()
-//                    .total("total")
-//                    .courses(Collections.singletonList(Courses.builder()
-//                            .grade("test")
-//                            .name("courseNmae")
-//                            .build()))
-//                    .userName("testUser")
-//                    .build());
 //
 //        };
-//
-//
 //    }
 } 
