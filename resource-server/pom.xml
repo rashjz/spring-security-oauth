@@ -22,12 +22,6 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- jdbc token store -->
-		<!--<dependency>-->
-			<!--<groupId>org.springframework</groupId>-->
-			<!--<artifactId>spring-jdbc</artifactId>-->
-		<!--</dependency>-->
-
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -68,12 +62,7 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 		</dependency>
-		<!--<dependency>-->
-		    <!--<groupId>io.rest-assured</groupId>-->
-		    <!--<artifactId>rest-assured</artifactId>-->
-		    <!--<scope>test</scope>-->
-		<!--</dependency>-->
-        
+
 	</dependencies>
 
 	<build>

@@ -9,8 +9,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import test.app.com.config.properties.TokenBodyProperties;
@@ -38,9 +40,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class MainControllerTest {
     private static final String RESOURCE_URL = "http://localhost:8082/resource-server/user/";
+    private static final String RESOURCE_ERROR_MESSAGE = "Authentication service is unavailable";
 
 
     private static final String USER_ID = "1";
+    private static final String REQUESTED_URL = "/user/";
 
     @MockBean
     private TokenBodyProperties properties;
@@ -58,13 +62,7 @@ public class MainControllerTest {
 
     @Before
     public void init() {
-        when(properties.getClientId()).thenReturn("test-id");
-        when(properties.getEndpoint()).thenReturn("http://test-client.com/");
-        when(properties.getGrantType()).thenReturn("test-client");
-        when(properties.getScope()).thenReturn("test-client");
-        when(properties.getSecret()).thenReturn("test-client");
-        when(properties.getUsername()).thenReturn("test-client");
-        when(properties.getPassword()).thenReturn("test-client");
+        createMockProperties();
 
         builder = UriComponentsBuilder.fromHttpUrl(properties.getEndpoint())
                 .queryParam(GRANT_TYPE, properties.getGrantType())
@@ -74,7 +72,6 @@ public class MainControllerTest {
 
         tokenParams = TokenParams.builder()
                 .access_token("test-access-token-param")
-                .expires_in(232423)
                 .scope("scope")
                 .token_type("token")
                 .build();
@@ -82,7 +79,8 @@ public class MainControllerTest {
 
 
     @Test
-    public void test() throws Exception {
+    @WithMockUser(username = "test-username", password = "test-password")
+    public void testGetResourceWithValidUserDataMustReturnSuccess() throws Exception {
         //mock rest template for authentication server post call
         when(restTemplate.postForObject(eq(builder.toUriString()), any(), any()))
                 .thenReturn(tokenParams);
@@ -94,8 +92,8 @@ public class MainControllerTest {
         when(restTemplate.getForObject(eq(resourceApiUriBuilder.toUriString()), eq(User.class)))
                 .thenReturn(expectedUser);
 
-        mockMvc.perform(get("/user/" + USER_ID)
-                .headers(HttpUtils.createHeaders("data-admin", "admin1"))
+        mockMvc.perform(get(REQUESTED_URL + USER_ID)
+                .headers(HttpUtils.createHeaders("test-username", "test-password"))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(expectedUser)));
@@ -108,6 +106,21 @@ public class MainControllerTest {
 
     }
 
+
+    @Test
+    @WithMockUser(username = "test-username", password = "test-password")
+    public void testGetResourceWhenAuthenticationServerNotAvailable() throws Exception {
+        when(restTemplate.postForObject(eq(builder.toUriString()), any(), any()))
+                .thenThrow(ResourceAccessException.class);
+
+        mockMvc.perform(get(REQUESTED_URL + USER_ID)
+                .headers(HttpUtils.createHeaders("test-username", "test-password"))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadGateway())
+                .andExpect(content().string(RESOURCE_ERROR_MESSAGE));
+    }
+
+
     private User expectedUser() {
         return User.builder()
                 .total("total")
@@ -117,6 +130,16 @@ public class MainControllerTest {
                         .name("courseName")
                         .build()))
                 .build();
+    }
+
+    private void createMockProperties() {
+        when(properties.getClientId()).thenReturn("test-id");
+        when(properties.getEndpoint()).thenReturn("http://test-client.com/");
+        when(properties.getGrantType()).thenReturn("test-client");
+        when(properties.getScope()).thenReturn("test-client");
+        when(properties.getSecret()).thenReturn("test-client");
+        when(properties.getUsername()).thenReturn("test-client");
+        when(properties.getPassword()).thenReturn("test-client");
     }
 
 }
